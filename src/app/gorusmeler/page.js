@@ -95,49 +95,51 @@ export default function GorusmelerPage() {
           {meetings.length === 0 ? (
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Henüz planlanmış bir görüşme bulunmuyor.</p>
           ) : (
-            <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', color: 'var(--text-secondary)' }}>
-              <thead>
-                <tr style={{ borderBottom: '2px solid var(--border-color)', color: 'var(--text-primary)' }}>
-                  <th style={{ padding: '1rem 0' }}>Tarih & Saat</th>
-                  <th>Personel</th>
-                  <th>Konu</th>
-                  <th>Durum</th>
-                  <th>İşlemler</th>
-                </tr>
-              </thead>
-              <tbody>
-                {meetings
-                  .sort((a, b) => new Date(a.date) - new Date(b.date))
-                  .map(meeting => {
-                  const person = personnel.find(p => p.id === meeting.personnelId);
-                  const dateObj = new Date(meeting.date);
-                  const dateStr = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                  
-                  return (
-                    <tr key={meeting.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td style={{ padding: '1rem 0', fontWeight: 500, color: 'var(--text-primary)' }}>{dateStr}</td>
-                      <td>{person ? person.name : 'Silinmiş Personel'}</td>
-                      <td>{meeting.topic}</td>
-                      <td>
-                        <select 
-                          className="form-input" 
-                          style={{ padding: '0.25rem 0.5rem', width: 'auto', fontSize: '0.875rem' }}
-                          value={meeting.status} 
-                          onChange={(e) => handleStatusChange(meeting.id, e.target.value)}
-                        >
-                          <option>Planlandı</option>
-                          <option>Tamamlandı</option>
-                          <option>İptal Edildi</option>
-                        </select>
-                      </td>
-                      <td>
-                        <button onClick={() => handleDelete(meeting.id)} className="btn" style={{ padding: '0.25rem 0.75rem', backgroundColor: 'rgb(239 68 68 / 0.1)', color: '#dc2626' }}>Sil</button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', minWidth: '600px', textAlign: 'left', borderCollapse: 'collapse', color: 'var(--text-secondary)' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid var(--border-color)', color: 'var(--text-primary)' }}>
+                    <th style={{ padding: '1rem 0' }}>Tarih & Saat</th>
+                    <th>Personel</th>
+                    <th>Konu</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {meetings
+                    .sort((a, b) => new Date(a.date) - new Date(b.date))
+                    .map(meeting => {
+                    const person = personnel.find(p => p.id === meeting.personnelId);
+                    const dateObj = new Date(meeting.date);
+                    const dateStr = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    
+                    return (
+                      <tr key={meeting.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                        <td style={{ padding: '1rem 0', fontWeight: 500, color: 'var(--text-primary)' }}>{dateStr}</td>
+                        <td>{person ? person.name : 'Silinmiş Personel'}</td>
+                        <td>{meeting.topic}</td>
+                        <td>
+                          <select 
+                            className="form-input" 
+                            style={{ padding: '0.25rem 0.5rem', width: 'auto', fontSize: '0.875rem' }}
+                            value={meeting.status} 
+                            onChange={(e) => handleStatusChange(meeting.id, e.target.value)}
+                          >
+                            <option>Planlandı</option>
+                            <option>Tamamlandı</option>
+                            <option>İptal Edildi</option>
+                          </select>
+                        </td>
+                        <td>
+                          <button onClick={() => handleDelete(meeting.id)} className="btn" style={{ padding: '0.25rem 0.75rem', backgroundColor: 'rgb(239 68 68 / 0.1)', color: '#dc2626' }}>Sil</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </section>

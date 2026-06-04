@@ -86,35 +86,37 @@ export default function HedeflerPage() {
           {goals.length === 0 ? (
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Henüz kayıtlı hedef yok.</p>
           ) : (
-            <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', color: 'var(--text-secondary)' }}>
-              <thead>
-                <tr style={{ borderBottom: '2px solid var(--border-color)', color: 'var(--text-primary)' }}>
-                  <th style={{ padding: '1rem 0' }}>Hedef</th>
-                  <th>Sorumlu Personel</th>
-                  <th>Durum</th>
-                  <th>İşlem</th>
-                </tr>
-              </thead>
-              <tbody>
-                {goals.map(goal => {
-                  const person = personnel.find(p => p.id === goal.assigneeId);
-                  return (
-                    <tr key={goal.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td style={{ padding: '1rem 0', fontWeight: 500, color: 'var(--text-primary)' }}>{goal.title}</td>
-                      <td>{person ? person.name : 'Atanmadı (veya Silinmiş)'}</td>
-                      <td>
-                        <span className={`badge ${goal.status === 'Ulaşıldı' ? 'badge-success' : goal.status === 'Riskli' ? 'badge-danger' : 'badge-warning'}`}>
-                          {goal.status}
-                        </span>
-                      </td>
-                      <td>
-                        <button onClick={() => handleDelete(goal.id)} className="btn" style={{ padding: '0.25rem 0.75rem', backgroundColor: 'rgb(239 68 68 / 0.1)', color: '#dc2626' }}>Sil</button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', minWidth: '600px', textAlign: 'left', borderCollapse: 'collapse', color: 'var(--text-secondary)' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid var(--border-color)', color: 'var(--text-primary)' }}>
+                    <th style={{ padding: '1rem 0' }}>Hedef</th>
+                    <th>Sorumlu Personel</th>
+                    <th>Durum</th>
+                    <th>İşlem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {goals.map(goal => {
+                    const person = personnel.find(p => p.id === goal.assigneeId);
+                    return (
+                      <tr key={goal.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                        <td style={{ padding: '1rem 0', fontWeight: 500, color: 'var(--text-primary)' }}>{goal.title}</td>
+                        <td>{person ? person.name : 'Atanmadı (veya Silinmiş)'}</td>
+                        <td>
+                          <span className={`badge ${goal.status === 'Ulaşıldı' ? 'badge-success' : goal.status === 'Riskli' ? 'badge-danger' : 'badge-warning'}`}>
+                            {goal.status}
+                          </span>
+                        </td>
+                        <td>
+                          <button onClick={() => handleDelete(goal.id)} className="btn" style={{ padding: '0.25rem 0.75rem', backgroundColor: 'rgb(239 68 68 / 0.1)', color: '#dc2626' }}>Sil</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </section>

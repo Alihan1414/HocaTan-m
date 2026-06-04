@@ -358,5 +358,37 @@ a:hover {
   .grid-4 {
     grid-template-columns: 1fr;
   }
+
+  /* Split Layout Responsive (Personel, vb. sayfalar için) */
+  .split-layout {
+    flex-direction: column !important;
+    height: auto !important;
+  }
+  
+  .split-sidebar {
+    width: 100% !important;
+    height: 250px; /* Mobilde liste için sabit yükseklik */
+  }
+}
+
+/* Sayfa İçi Layout Utility */
+.split-layout {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  height: calc(100vh - 150px);
+}
+
+.split-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.split-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 

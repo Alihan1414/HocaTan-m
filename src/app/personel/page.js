@@ -468,9 +468,9 @@ export default function PersonelPage() {
         </div>
       </header>
 
-      <div style={{ display: 'flex', gap: '1.5rem', marginTop: '2rem', height: 'calc(100vh - 150px)' }}>
+      <div className="split-layout">
         {/* Sol Liste */}
-        <div className="card" style={{ width: '260px', flexShrink: 0, overflowY: 'auto' }}>
+        <div className="card split-sidebar">
           <h2 className="card-title">Personel Listesi</h2>
           {personnel.length === 0 ? (
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Henüz kayıtlı personel yok.</p>
@@ -506,7 +506,7 @@ export default function PersonelPage() {
         </div>
 
         {/* Sağ İçerik */}
-        <div className="card" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+        <div className="card split-content">
           {isAdding ? (
             <form onSubmit={handleAddSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <h2 className="card-title" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>Yeni Personel Ekle</h2>
