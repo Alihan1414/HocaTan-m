@@ -36,7 +36,7 @@ const SYNERGY_DATA = {
   },
 
   // ── KOLERİK + FLEGMATİK ──────────────────────────────────────
-  KF: {
+  FK: {
     score: 58,
     title: 'Hız & Denge',
     summary:
@@ -86,7 +86,7 @@ const SYNERGY_DATA = {
   },
 
   // ── MELANKOLİK + FLEGMATİK ──────────────────────────────────────
-  MF: {
+  FM: {
     score: 85,
     title: 'Mükemmellik & Huzur',
     summary:
