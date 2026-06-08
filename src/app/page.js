@@ -3,9 +3,10 @@
 import { useStore } from '@/store/useStore';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { QUIZ_QUESTIONS, TYPES, calculatePersonality } from '@/lib/personalityEngine';
 
 export default function Dashboard() {
-  const { personnel, goals, meetings } = useStore();
+  const { personnel, meetings } = useStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -15,14 +16,28 @@ export default function Dashboard() {
   if (!mounted) return null;
 
   const totalPersonnel = personnel.length;
-  const achievedGoals = goals.filter(g => g.status === 'Ulaşıldı').length;
-  const inProgressGoals = goals.filter(g => g.status === 'Devam Ediyor').length;
-  const atRiskGoals = goals.filter(g => g.status === 'Riskli').length;
+  
+  // Test çözen personel sayısı
+  const testedPersonnel = personnel.filter(p => p.quizAnswers && Object.keys(p.quizAnswers).length === QUIZ_QUESTIONS.length);
+  const totalTested = testedPersonnel.length;
+
+  // En yaygın mizaç tipini bul
+  let commonTypeDisplay = 'Veri Yok';
+  if (totalTested > 0) {
+    const typeCounts = { K: 0, M: 0, F: 0, S: 0 };
+    testedPersonnel.forEach(p => {
+      const res = calculatePersonality(p.quizAnswers);
+      typeCounts[res.primaryType]++;
+    });
+    const mostCommonTypeKey = Object.keys(typeCounts).reduce((a, b) => typeCounts[a] > typeCounts[b] ? a : b);
+    commonTypeDisplay = TYPES[mostCommonTypeKey].name;
+  }
 
   const upcomingMeetings = meetings
     .filter(m => m.status === 'Planlandı' && new Date(m.date) >= new Date())
-    .sort((a, b) => new Date(a.date) - new Date(b.date))
-    .slice(0, 3);
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+  const upcomingMeetingsCount = upcomingMeetings.length;
 
   return (
     <>
@@ -39,16 +54,16 @@ export default function Dashboard() {
           <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--accent-color)' }}>{totalPersonnel}</div>
         </div>
         <div className="card">
-          <div className="card-title">Ulaşılan Hedefler</div>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--accent-color)' }}>{achievedGoals}</div>
+          <div className="card-title">Analizi Bitenler</div>
+          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#10b981' }}>{totalTested}</div>
         </div>
         <div className="card">
-          <div className="card-title">Devam Eden Hedefler</div>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--accent-color)' }}>{inProgressGoals}</div>
+          <div className="card-title">Baskın Mizaç Tipi</div>
+          <div style={{ fontSize: '1.75rem', fontWeight: 'bold', color: '#8b5cf6' }}>{commonTypeDisplay}</div>
         </div>
         <div className="card">
-          <div className="card-title">Riskli Hedefler</div>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--accent-color)' }}>{atRiskGoals}</div>
+          <div className="card-title">Yaklaşan Görüşmeler</div>
+          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#f59e0b' }}>{upcomingMeetingsCount}</div>
         </div>
       </section>
 
