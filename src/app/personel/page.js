@@ -152,12 +152,6 @@ function PersonalityTab({ person, onSave }) {
           </ul>
         </div>
       </div>
-
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <button onClick={() => setShowQuiz(true)} className="btn btn-secondary" style={{ fontSize: '0.875rem' }}>
-          🔄 Testi Yeniden Yap
-        </button>
-      </div>
     </div>
   );
 }
@@ -307,7 +301,7 @@ function TransferCardTab({ person }) {
         {/* Üst Şerit */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
           <div>
-            <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>HocaTanım — Personel Transfer Kartı</div>
+            <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Personel Tanım — Personel Transfer Kartı</div>
             <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)' }}>{person.name}</div>
             <div style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>{person.department} {person.experience ? `· ${person.experience}` : ''}</div>
           </div>
@@ -565,9 +559,17 @@ export default function PersonelPage() {
                     {selectedPerson.experience && <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>· {selectedPerson.experience}</span>}
                   </div>
                 </div>
-                <button onClick={handleDelete} className="btn" style={{ backgroundColor: 'rgb(239 68 68 / 0.1)', color: '#dc2626', flexShrink: 0 }}>
-                  🗑 Sil
-                </button>
+                <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+                  <button onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/anket/${selectedPerson.id}`);
+                    alert('Anket linki panoya kopyalandı! WhatsApp veya e-posta ile personele gönderebilirsiniz.');
+                  }} className="btn btn-secondary">
+                    🔗 Anket Linki Kopyala
+                  </button>
+                  <button onClick={handleDelete} className="btn" style={{ backgroundColor: 'rgb(239 68 68 / 0.1)', color: '#dc2626' }}>
+                    🗑 Sil
+                  </button>
+                </div>
               </div>
 
               {/* Sekmeler */}

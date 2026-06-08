@@ -2,7 +2,7 @@ import './globals.css';
 import Sidebar from '@/components/Sidebar';
 
 export const metadata = {
-  title: 'HocaTanım - Personel Gelişim ve Profil Takip Sistemi',
+  title: 'Personel Tanım - Personel Gelişim ve Profil Takip Sistemi',
   description: 'İdare ve personel ortak hedef belirleme ve gelişim takip aracı.',
 };
 
