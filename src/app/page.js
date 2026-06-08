@@ -59,8 +59,8 @@ export default function Dashboard() {
             {personnel.slice(-5).map(person => (
               <li key={person.id} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
                 <span style={{ fontWeight: 500 }}>{person.name}</span>
-                <span className={`badge ${person.status === 'Yüksek Performans' ? 'badge-success' : 'badge-info'}`}>
-                  {person.status}
+                <span className={`badge ${person.status?.startsWith('G4') ? 'badge-success' : person.status?.startsWith('G2') ? 'badge-danger' : person.status?.startsWith('G3') ? 'badge-warning' : 'badge-info'}`}>
+                  {person.status?.split(' (')[0]}
                 </span>
               </li>
             ))}

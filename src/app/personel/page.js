@@ -414,7 +414,7 @@ export default function PersonelPage() {
   }, [personnel]);
 
   const [formData, setFormData] = useState({
-    name: '', department: '', status: 'Yeni Başlayan', experience: '',
+    name: '', department: '', status: 'G1 - Acemi / Hevesli', experience: '',
     interests: '', hobbies: '', phobias: '', stressTriggers: '', reliefMethods: '',
     careerPlan: '', goalsShort: '', goalsMid: '', goalsLong: '', masterPlan: '',
     swot: { strengths: '', weaknesses: '', opportunities: '', threats: '' },
@@ -427,7 +427,7 @@ export default function PersonelPage() {
     addPersonnel(formData);
     setIsAdding(false);
     setFormData({
-      name: '', department: '', status: 'Yeni Başlayan', experience: '',
+      name: '', department: '', status: 'G1 - Acemi / Hevesli', experience: '',
       interests: '', hobbies: '', phobias: '', stressTriggers: '', reliefMethods: '',
       careerPlan: '', goalsShort: '', goalsMid: '', goalsLong: '', masterPlan: '',
       swot: { strengths: '', weaknesses: '', opportunities: '', threats: '' },
@@ -513,11 +513,14 @@ export default function PersonelPage() {
 
               <div className="grid-2">
                 <div className="form-group"><label className="form-label">Ad Soyad</label><input required className="form-input" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} /></div>
-                <div className="form-group"><label className="form-label">Departman / Kurum</label><input required className="form-input" value={formData.department} onChange={e => setFormData({ ...formData, department: e.target.value })} /></div>
+                <div className="form-group"><label className="form-label">Kurum Görevi</label><input required className="form-input" value={formData.department} onChange={e => setFormData({ ...formData, department: e.target.value })} /></div>
                 <div className="form-group">
-                  <label className="form-label">Durum</label>
+                  <label className="form-label">Gelişim / Liderlik Seviyesi</label>
                   <select className="form-input" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })}>
-                    <option>Yeni Başlayan</option><option>Değerlendirmede</option><option>Yüksek Performans</option><option>Riskli</option>
+                    <option>G1 - Acemi / Hevesli (S1 Liderlik)</option>
+                    <option>G2 - Öğrenen / Düşük Motivasyon (S2 Liderlik)</option>
+                    <option>G3 - Yetkin / Çekingen (S3 Liderlik)</option>
+                    <option>G4 - Uzman / Yıldız (S4 Liderlik)</option>
                   </select>
                 </div>
                 <div className="form-group"><label className="form-label">Deneyim (Örn: 5 Yıl)</label><input className="form-input" value={formData.experience} onChange={e => setFormData({ ...formData, experience: e.target.value })} /></div>
@@ -557,7 +560,7 @@ export default function PersonelPage() {
                 <div>
                   <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>{selectedPerson.name}</h2>
                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                    <span className={`badge ${selectedPerson.status === 'Yüksek Performans' ? 'badge-success' : selectedPerson.status === 'Riskli' ? 'badge-danger' : selectedPerson.status === 'Değerlendirmede' ? 'badge-warning' : 'badge-info'}`}>{selectedPerson.status}</span>
+                    <span className={`badge ${selectedPerson.status?.startsWith('G4') ? 'badge-success' : selectedPerson.status?.startsWith('G2') ? 'badge-danger' : selectedPerson.status?.startsWith('G3') ? 'badge-warning' : 'badge-info'}`}>{selectedPerson.status?.split(' (')[0]}</span>
                     {selectedPerson.department && <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>· {selectedPerson.department}</span>}
                     {selectedPerson.experience && <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>· {selectedPerson.experience}</span>}
                   </div>
