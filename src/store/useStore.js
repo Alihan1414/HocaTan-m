@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -9,7 +9,7 @@ const firestoreStorage = {
       const docRef = doc(db, 'hocatanim', 'globalState');
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        return docSnap.data().value; // Zustand parses the string automatically
+        return docSnap.data().value;
       }
       return null;
     } catch (error) {
@@ -20,13 +20,13 @@ const firestoreStorage = {
   setItem: async (name, value) => {
     try {
       const docRef = doc(db, 'hocatanim', 'globalState');
-      await setDoc(docRef, { value: value }); // value is already stringified by Zustand
+      await setDoc(docRef, { value: value });
     } catch (error) {
       console.error("Firestore yazma hatası:", error);
     }
   },
   removeItem: async (name) => {
-    // Genelde removeItem tam olarak silmek içindir, bu uygulamada gerekmiyor.
+    // Silme işlemi gerekmiyor
   },
 };
 
@@ -36,6 +36,8 @@ export const useStore = create(
       personnel: [],
       goals: [],
       meetings: [],
+      _hasHydrated: false,
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
       addPersonnel: (person) => set((state) => ({ 
         personnel: [...state.personnel, { ...person, id: Date.now() }] 
       })),
@@ -63,7 +65,12 @@ export const useStore = create(
     }),
     {
       name: 'hocatanim-storage',
-      storage: firestoreStorage, // Custom Firebase storage
+      storage: createJSONStorage(() => firestoreStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.setHasHydrated(true);
+        }
+      }
     }
   )
 );
