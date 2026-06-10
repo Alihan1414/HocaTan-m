@@ -4,6 +4,7 @@ import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 let lastKnownValue = null;
+let writeQueue = Promise.resolve();
 
 const firestoreStorage = {
   getItem: async (name) => {
@@ -20,15 +21,25 @@ const firestoreStorage = {
       return null;
     }
   },
-  setItem: async (name, value) => {
+  setItem: (name, value) => {
     if (value === lastKnownValue) return; // Sonsuz döngüyü önle
-    try {
-      const docRef = doc(db, 'hocatanim', 'globalState');
-      await setDoc(docRef, { value: value });
-      lastKnownValue = value;
-    } catch (error) {
-      console.error("Firestore yazma hatası:", error);
-    }
+    
+    // İşlemleri sıraya koy (Queue) - Hızlı eklemelerde Firestore yazma yarışını (race condition) önler
+    writeQueue = writeQueue.then(async () => {
+      // Bekleme sırasında değer zaten değişmişse veya eşitlenmişse atla
+      if (value === lastKnownValue) return;
+      
+      try {
+        const docRef = doc(db, 'hocatanim', 'globalState');
+        await setDoc(docRef, { value: value });
+        lastKnownValue = value;
+      } catch (error) {
+        console.error("Firestore yazma hatası:", error);
+      }
+    });
+    
+    // Zustand persist'in Promise dönmesi gerekmiyor ama dönebiliriz
+    return writeQueue;
   },
   removeItem: async (name) => {
     // Silme işlemi gerekmiyor
