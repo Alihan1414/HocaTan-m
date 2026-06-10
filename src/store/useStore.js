@@ -9,16 +9,17 @@ let writeQueue = Promise.resolve();
 const firestoreStorage = {
   getItem: async (name) => {
     try {
-      const docRef = doc(db, 'hocatanim', 'globalState');
+      const docRef = doc(db, 'hocatanim', 'globalState_v2');
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         lastKnownValue = docSnap.data().value;
         return lastKnownValue;
       }
-      return null;
+      return null; // Belge gerçekten yoksa null dönmek normaldir (ilk kurulum)
     } catch (error) {
       console.error("Firestore okuma hatası:", error);
-      return null;
+      // Ağ hatası vb. durumlarda boş veriyle ezip veritabanını sıfırlamasını engellemek için hata fırlatıyoruz!
+      throw error;
     }
   },
   setItem: (name, value) => {
@@ -30,7 +31,7 @@ const firestoreStorage = {
       if (value === lastKnownValue) return;
       
       try {
-        const docRef = doc(db, 'hocatanim', 'globalState');
+        const docRef = doc(db, 'hocatanim', 'globalState_v2');
         await setDoc(docRef, { value: value });
         lastKnownValue = value;
       } catch (error) {
@@ -93,7 +94,7 @@ export const useStore = create(
 
 // Real-time synchronization
 if (typeof window !== 'undefined') {
-  const docRef = doc(db, 'hocatanim', 'globalState');
+  const docRef = doc(db, 'hocatanim', 'globalState_v2');
   onSnapshot(docRef, (docSnap) => {
     if (docSnap.exists()) {
       const remoteValue = docSnap.data().value;
