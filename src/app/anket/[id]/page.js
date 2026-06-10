@@ -4,14 +4,17 @@ import { useState, useEffect } from 'react';
 import { useStore } from '@/store/useStore';
 import { QUIZ_QUESTIONS, TYPES, calculatePersonality } from '@/lib/personalityEngine';
 import { useParams } from 'next/navigation';
+import { doc, runTransaction } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 export default function AnketPage() {
   const params = useParams();
-  const { personnel, updatePersonnel } = useStore();
+  const { personnel, _hasHydrated } = useStore();
   
   const [mounted, setMounted] = useState(false);
   const [person, setPerson] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Form State
   const [formData, setFormData] = useState({
@@ -51,12 +54,18 @@ export default function AnketPage() {
     }
   }, [personnel, params]);
 
-  if (!mounted) return null;
+  if (!mounted || !_hasHydrated) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '2rem' }}>
+        <h2 style={{ color: 'var(--text-primary)' }}>Yükleniyor...</h2>
+      </div>
+    );
+  }
 
   if (!person) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '2rem' }}>
-        <h2 style={{ color: 'var(--text-primary)' }}>Personel bulunamadı veya link geçersiz.</h2>
+        <h2 style={{ color: 'var(--text-primary)', textAlign: 'center' }}>Personel aranıyor veya link geçersiz.<br/>Lütfen bekleyin...</h2>
       </div>
     );
   }
@@ -77,13 +86,36 @@ export default function AnketPage() {
     setFormData(prev => ({ ...prev, quizAnswers: { ...prev.quizAnswers, [questionId]: type } }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
-    // G1-G4 atamasını otomatikleştirebiliriz ama idarecinin inisiyatifinde kalması daha iyi.
-    // Biz sadece doldurulan form verilerini güncelliyoruz.
-    updatePersonnel(person.id, formData);
-    setIsSubmitted(true);
+    // Concurrent update riskini engellemek için Transaction kullanıyoruz
+    const docRef = doc(db, 'hocatanim', 'globalState');
+    try {
+      await runTransaction(db, async (transaction) => {
+        const docSnap = await transaction.get(docRef);
+        if (!docSnap.exists()) {
+          throw new Error("Document does not exist!");
+        }
+        
+        const globalStateStr = docSnap.data().value;
+        const globalState = JSON.parse(globalStateStr);
+        
+        if (globalState && globalState.state && globalState.state.personnel) {
+          globalState.state.personnel = globalState.state.personnel.map(p => 
+            p.id === person.id ? { ...p, ...formData } : p
+          );
+          transaction.update(docRef, { value: JSON.stringify(globalState) });
+        }
+      });
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error("Form gönderilirken hata oluştu: ", error);
+      alert("Gönderilirken bir hata oluştu, lütfen tekrar deneyin.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const allQuizAnswered = QUIZ_QUESTIONS.every(q => formData.quizAnswers[q.id]);
@@ -185,14 +217,14 @@ export default function AnketPage() {
           <button 
             type="submit" 
             className="btn btn-primary" 
-            disabled={!allQuizAnswered}
+            disabled={!allQuizAnswered || isSubmitting}
             style={{ 
               padding: '1rem 3rem', fontSize: '1.1rem', 
-              opacity: allQuizAnswered ? 1 : 0.5, 
-              cursor: allQuizAnswered ? 'pointer' : 'not-allowed' 
+              opacity: (allQuizAnswered && !isSubmitting) ? 1 : 0.5, 
+              cursor: (allQuizAnswered && !isSubmitting) ? 'pointer' : 'not-allowed' 
             }}
           >
-            {allQuizAnswered ? 'Gönder ve Tamamla' : 'Tüm Test Sorularını Cevaplayın'}
+            {isSubmitting ? 'Gönderiliyor...' : (allQuizAnswered ? 'Gönder ve Tamamla' : 'Tüm Test Sorularını Cevaplayın')}
           </button>
         </div>
         {!allQuizAnswered && (

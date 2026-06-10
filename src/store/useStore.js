@@ -1,7 +1,9 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+
+let lastKnownValue = null;
 
 const firestoreStorage = {
   getItem: async (name) => {
@@ -9,7 +11,8 @@ const firestoreStorage = {
       const docRef = doc(db, 'hocatanim', 'globalState');
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        return docSnap.data().value;
+        lastKnownValue = docSnap.data().value;
+        return lastKnownValue;
       }
       return null;
     } catch (error) {
@@ -18,9 +21,11 @@ const firestoreStorage = {
     }
   },
   setItem: async (name, value) => {
+    if (value === lastKnownValue) return; // Sonsuz döngüyü önle
     try {
       const docRef = doc(db, 'hocatanim', 'globalState');
       await setDoc(docRef, { value: value });
+      lastKnownValue = value;
     } catch (error) {
       console.error("Firestore yazma hatası:", error);
     }
@@ -74,3 +79,22 @@ export const useStore = create(
     }
   )
 );
+
+// Real-time synchronization
+if (typeof window !== 'undefined') {
+  const docRef = doc(db, 'hocatanim', 'globalState');
+  onSnapshot(docRef, (docSnap) => {
+    if (docSnap.exists()) {
+      const remoteValue = docSnap.data().value;
+      if (remoteValue !== lastKnownValue) {
+        lastKnownValue = remoteValue;
+        try {
+          const parsed = JSON.parse(remoteValue);
+          useStore.setState(parsed.state);
+        } catch (e) {
+          console.error("State parse error", e);
+        }
+      }
+    }
+  });
+}
