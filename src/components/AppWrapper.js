@@ -121,6 +121,7 @@ export default function AppWrapper({ children }) {
         padding: '2rem'
       }}>
         UYGULAMA KULLANIM ÜCRETİNİ GÖNDERİNİZ KUL HAKKI 💸
+        <audio autoPlay src="/coin.mp3" />
         <style dangerouslySetInnerHTML={{__html: `
           @keyframes flashBayram {
             0%, 100% { opacity: 1; transform: scale(1); color: white; }
