@@ -11,6 +11,14 @@ export default function AppWrapper({ children }) {
 
   useEffect(() => {
     setMounted(true);
+    
+    // PWA Service Worker Kaydı
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(err => {
+        console.log('Service Worker registration failed: ', err);
+      });
+    }
+
     const storedUser = localStorage.getItem('personeltanim_user');
     if (storedUser) {
       setUserName(storedUser);
