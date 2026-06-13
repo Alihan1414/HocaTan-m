@@ -65,7 +65,7 @@ export default function AppWrapper({ children }) {
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <input
               type="text"
-              placeholder="İsminiz (Örn: Bayram)"
+              placeholder="İsminiz"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               style={{
