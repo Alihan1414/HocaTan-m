@@ -561,7 +561,8 @@ export default function PersonelPage() {
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
                   <button onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/anket/${selectedPerson.id}`);
+                    const u = localStorage.getItem('personeltanim_user') || 'default';
+                    navigator.clipboard.writeText(`${window.location.origin}/anket/${selectedPerson.id}?u=${u}`);
                     alert('Anket linki panoya kopyalandı! WhatsApp veya e-posta ile personele gönderebilirsiniz.');
                   }} className="btn btn-secondary">
                     🔗 Anket Linki Kopyala

@@ -91,7 +91,8 @@ export default function AnketPage() {
     setIsSubmitting(true);
     
     // Concurrent update riskini engellemek için Transaction kullanıyoruz
-    const docRef = doc(db, 'hocatanim', 'globalState_v2');
+    const { getDocRef } = await import('@/store/useStore');
+    const docRef = getDocRef();
     try {
       await runTransaction(db, async (transaction) => {
         const docSnap = await transaction.get(docRef);

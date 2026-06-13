@@ -8,8 +8,15 @@ let writeQueue = Promise.resolve();
 let currentUnsubscribe = null;
 
 // Aktif kullanıcı adını al (normalleştirilmiş, küçük harf)
-function getActiveUser() {
+export function getActiveUser() {
   if (typeof window === 'undefined') return 'default';
+  
+  if (window.location.pathname.startsWith('/anket/')) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const u = urlParams.get('u');
+    if (u) return u.toLowerCase().trim();
+  }
+  
   const user = localStorage.getItem('personeltanim_user');
   return user ? user.toLowerCase().trim() : 'default';
 }
@@ -17,7 +24,7 @@ function getActiveUser() {
 // Firestore belge yolu: hocatanim/{kullanıcıAdı}/globalState_v2
 // "bayram" kullanıcısı için eski veritabanıyla uyumluluk:
 // Eğer bayram ise önce yeni yolu dene, yoksa eski global yolu kullan
-function getDocRef() {
+export function getDocRef() {
   const user = getActiveUser();
   // Bayram kullanıcısı için eski yolu koruyoruz (mevcut veriler orada)
   if (user === 'bayram') {

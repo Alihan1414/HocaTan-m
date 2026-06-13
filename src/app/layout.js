@@ -13,6 +13,21 @@ export const metadata = {
   icons: {
     apple: '/icon-192x192.png',
   },
+  openGraph: {
+    title: 'PersoneliniTanı',
+    description: 'Personel Gelişim ve Profil Takip Sistemi',
+    url: 'https://personelinitani.com',
+    siteName: 'PersoneliniTanı',
+    images: [
+      {
+        url: '/icon-512x512.png',
+        width: 512,
+        height: 512,
+        alt: 'PersoneliniTanı Kapak Fotoğrafı',
+      },
+    ],
+    type: 'website',
+  },
 };
 
 export default function RootLayout({ children }) {
