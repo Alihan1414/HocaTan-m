@@ -102,6 +102,35 @@ export default function AppWrapper({ children }) {
 
   return (
     <div className="app-container">
+      {userName === 'bayram' && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(239, 68, 68, 0.95)',
+          color: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          fontSize: '4rem',
+          fontWeight: '900',
+          zIndex: 99999,
+          animation: 'flashBayram 0.5s infinite',
+          padding: '2rem',
+          backdropFilter: 'blur(10px)'
+        }}>
+          UYGULAMA KULLANIM ÜCRETİNİ GÖNDERİNİZ KUL HAKKI 💸
+          <style dangerouslySetInnerHTML={{__html: `
+            @keyframes flashBayram {
+              0%, 100% { opacity: 1; transform: scale(1); color: white; }
+              50% { opacity: 0.9; transform: scale(1.05); color: yellow; }
+            }
+          `}} />
+        </div>
+      )}
       <Sidebar userName={userName} onLogout={() => {
         localStorage.removeItem('personeltanim_user');
         window.location.reload();
