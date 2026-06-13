@@ -5,46 +5,59 @@ import { db } from '../lib/firebase';
 
 let lastKnownValue = null;
 let writeQueue = Promise.resolve();
+let currentUnsubscribe = null;
+
+// Aktif kullanıcı adını al (normalleştirilmiş, küçük harf)
+function getActiveUser() {
+  if (typeof window === 'undefined') return 'default';
+  const user = localStorage.getItem('personeltanim_user');
+  return user ? user.toLowerCase().trim() : 'default';
+}
+
+// Firestore belge yolu: hocatanim/{kullanıcıAdı}/globalState_v2
+// "bayram" kullanıcısı için eski veritabanıyla uyumluluk:
+// Eğer bayram ise önce yeni yolu dene, yoksa eski global yolu kullan
+function getDocRef() {
+  const user = getActiveUser();
+  // Bayram kullanıcısı için eski yolu koruyoruz (mevcut veriler orada)
+  if (user === 'bayram') {
+    return doc(db, 'hocatanim', 'globalState_v2');
+  }
+  return doc(db, 'hocatanim', `${user}_globalState_v2`);
+}
 
 const firestoreStorage = {
   getItem: async (name) => {
     try {
-      const docRef = doc(db, 'hocatanim', 'globalState_v2');
+      const docRef = getDocRef();
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         lastKnownValue = docSnap.data().value;
         return lastKnownValue;
       }
-      return null; // Belge gerçekten yoksa null dönmek normaldir (ilk kurulum)
+      return null;
     } catch (error) {
       console.error("Firestore okuma hatası:", error);
-      // Ağ hatası vb. durumlarda boş veriyle ezip veritabanını sıfırlamasını engellemek için hata fırlatıyoruz!
       throw error;
     }
   },
   setItem: (name, value) => {
-    if (value === lastKnownValue) return; // Sonsuz döngüyü önle
-    
-    // İşlemleri sıraya koy (Queue) - Hızlı eklemelerde Firestore yazma yarışını (race condition) önler
+    if (value === lastKnownValue) return;
+
     writeQueue = writeQueue.then(async () => {
-      // Bekleme sırasında değer zaten değişmişse veya eşitlenmişse atla
       if (value === lastKnownValue) return;
-      
       try {
-        const docRef = doc(db, 'hocatanim', 'globalState_v2');
+        const docRef = getDocRef();
         await setDoc(docRef, { value: value });
         lastKnownValue = value;
       } catch (error) {
         console.error("Firestore yazma hatası:", error);
       }
     });
-    
-    // Zustand persist'in Promise dönmesi gerekmiyor ama dönebiliriz
+
     return writeQueue;
   },
-  removeItem: async (name) => {
-    // Silme işlemi gerekmiyor
-  },
+  removeItem: async (name) => {},
 };
 
 export const useStore = create(
@@ -55,20 +68,20 @@ export const useStore = create(
       meetings: [],
       _hasHydrated: false,
       setHasHydrated: (state) => set({ _hasHydrated: state }),
-      addPersonnel: (person) => set((state) => ({ 
-        personnel: [...state.personnel, { ...person, id: Date.now() }] 
+      addPersonnel: (person) => set((state) => ({
+        personnel: [...state.personnel, { ...person, id: Date.now() }]
       })),
-      removePersonnel: (id) => set((state) => ({ 
-        personnel: state.personnel.filter(p => p.id !== id) 
+      removePersonnel: (id) => set((state) => ({
+        personnel: state.personnel.filter(p => p.id !== id)
       })),
       updatePersonnel: (id, updatedData) => set((state) => ({
         personnel: state.personnel.map(p => p.id === id ? { ...p, ...updatedData } : p)
       })),
-      addGoal: (goal) => set((state) => ({ 
-        goals: [...state.goals, { ...goal, id: Date.now() }] 
+      addGoal: (goal) => set((state) => ({
+        goals: [...state.goals, { ...goal, id: Date.now() }]
       })),
-      removeGoal: (id) => set((state) => ({ 
-        goals: state.goals.filter(g => g.id !== id) 
+      removeGoal: (id) => set((state) => ({
+        goals: state.goals.filter(g => g.id !== id)
       })),
       addMeeting: (meeting) => set((state) => ({
         meetings: [...state.meetings, { ...meeting, id: Date.now() }]
@@ -81,7 +94,7 @@ export const useStore = create(
       }))
     }),
     {
-      name: 'hocatanim-storage',
+      name: 'personeltanim-storage',
       storage: createJSONStorage(() => firestoreStorage),
       onRehydrateStorage: () => (state) => {
         if (state) {
@@ -92,10 +105,18 @@ export const useStore = create(
   )
 );
 
-// Real-time synchronization
-if (typeof window !== 'undefined') {
-  const docRef = doc(db, 'hocatanim', 'globalState_v2');
-  onSnapshot(docRef, (docSnap) => {
+// Real-time senkronizasyon - kullanıcıya göre dinle
+export function subscribeToUserStore() {
+  if (typeof window === 'undefined') return;
+  if (currentUnsubscribe) {
+    currentUnsubscribe();
+    currentUnsubscribe = null;
+  }
+
+  lastKnownValue = null;
+
+  const docRef = getDocRef();
+  currentUnsubscribe = onSnapshot(docRef, (docSnap) => {
     if (docSnap.exists()) {
       const remoteValue = docSnap.data().value;
       if (remoteValue !== lastKnownValue) {

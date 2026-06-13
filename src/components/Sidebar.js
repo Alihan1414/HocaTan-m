@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
-export default function Sidebar() {
+export default function Sidebar({ userName, onLogout }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -54,7 +54,7 @@ export default function Sidebar() {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
           </svg>
-          Personel Tanım
+          PersoneliniTanı
         </div>
         <button className="hamburger-btn" onClick={() => setOpen(!open)} aria-label="Menü">
           {open ? (
@@ -74,7 +74,7 @@ export default function Sidebar() {
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
           </svg>
-          Personel Tanım
+          PersoneliniTanı
         </div>
         <nav className="nav-links">
           {links.map(link => (
@@ -89,6 +89,37 @@ export default function Sidebar() {
             </Link>
           ))}
         </nav>
+
+        {userName && (
+          <div style={{ marginTop: 'auto', padding: '1rem', borderTop: '1px solid #334155' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <div style={{ width: 32, height: 32, borderRadius: '16px', backgroundColor: '#fbbf24', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                {userName.charAt(0).toUpperCase()}
+              </div>
+              <div style={{ color: '#f8fafc', fontWeight: '500', textTransform: 'capitalize' }}>{userName}</div>
+            </div>
+            <button 
+              onClick={onLogout}
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                backgroundColor: 'transparent',
+                color: '#ef4444',
+                border: '1px solid #ef4444',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                fontSize: '0.875rem'
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              Çıkış Yap
+            </button>
+          </div>
+        )}
       </aside>
     </>
   );
