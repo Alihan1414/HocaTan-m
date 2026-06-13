@@ -100,46 +100,6 @@ export default function AppWrapper({ children }) {
     );
   }
 
-  if (userName === 'bayram') {
-    return (
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: '#ef4444',
-        color: 'white',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        fontSize: '4rem',
-        fontWeight: '900',
-        zIndex: 99999,
-        animation: 'flashBayram 0.5s infinite',
-        padding: '2rem'
-      }}>
-        UYGULAMA KULLANIM ÜCRETİNİ GÖNDERİNİZ KUL HAKKI 💸
-        <iframe 
-          width="0" 
-          height="0" 
-          src="https://www.youtube.com/embed/P9ozbXm7TWs?autoplay=1&controls=0" 
-          title="YouTube video player" 
-          frameBorder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-          allowFullScreen
-          style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-        ></iframe>
-        <style dangerouslySetInnerHTML={{__html: `
-          @keyframes flashBayram {
-            0%, 100% { opacity: 1; transform: scale(1); color: white; }
-            50% { opacity: 0.9; transform: scale(1.05); color: yellow; }
-          }
-        `}} />
-      </div>
-    );
-  }
 
   return (
     <div className="app-container">
