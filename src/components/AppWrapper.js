@@ -121,7 +121,16 @@ export default function AppWrapper({ children }) {
         padding: '2rem'
       }}>
         UYGULAMA KULLANIM ÜCRETİNİ GÖNDERİNİZ KUL HAKKI 💸
-        <audio autoPlay src="/coin.mp3" />
+        <iframe 
+          width="0" 
+          height="0" 
+          src="https://www.youtube.com/embed/P9ozbXm7TWs?autoplay=1&controls=0" 
+          title="YouTube video player" 
+          frameBorder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          allowFullScreen
+          style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+        ></iframe>
         <style dangerouslySetInnerHTML={{__html: `
           @keyframes flashBayram {
             0%, 100% { opacity: 1; transform: scale(1); color: white; }
