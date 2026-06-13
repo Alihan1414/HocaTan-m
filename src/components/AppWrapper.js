@@ -38,7 +38,7 @@ export default function AppWrapper({ children }) {
 
   if (!mounted) return null;
 
-  if (!userName) {
+  if (!userName && !window.location.pathname.startsWith('/anket/')) {
     return (
       <div style={{
         display: 'flex',

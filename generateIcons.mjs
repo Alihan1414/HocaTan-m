@@ -2,7 +2,7 @@ import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
 
-const svgPath = path.resolve('public/globe.svg');
+const svgPath = 'C:\\Users\\ACER\\.gemini\\antigravity-ide\\brain\\c9b185b2-2614-48b1-a167-23dbb4978a9e\\personelini_tani_logo_1781380005228.png';
 const icon192 = path.resolve('public/icon-192x192.png');
 const icon512 = path.resolve('public/icon-512x512.png');
 
