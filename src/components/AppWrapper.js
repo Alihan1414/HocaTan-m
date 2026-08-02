@@ -19,7 +19,12 @@ export default function AppWrapper({ children }) {
       });
     }
 
-    const storedUser = localStorage.getItem('personeltanim_user');
+    let storedUser = null;
+    try {
+      storedUser = localStorage.getItem('personeltanim_user');
+    } catch (e) {
+      console.error("localStorage getItem hatası:", e);
+    }
     if (storedUser) {
       setUserName(storedUser);
       subscribeToUserStore();
@@ -31,7 +36,11 @@ export default function AppWrapper({ children }) {
     if (!inputValue.trim()) return;
     
     const normalizedUser = inputValue.trim().toLowerCase();
-    localStorage.setItem('personeltanim_user', normalizedUser);
+    try {
+      localStorage.setItem('personeltanim_user', normalizedUser);
+    } catch (e) {
+      console.error("localStorage setItem hatası:", e);
+    }
     setUserName(normalizedUser);
     subscribeToUserStore();
   };
@@ -45,10 +54,12 @@ export default function AppWrapper({ children }) {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        height: '100vh',
+        minHeight: '100vh',          /* min-height yerine height — klavye açılınca buton kaybolmaz */
+        overflowY: 'auto',           /* klavye küçültünce scroll yapılabilir */
         backgroundColor: '#0f172a',
         color: '#fff',
-        fontFamily: 'sans-serif'
+        fontFamily: 'sans-serif',
+        padding: '1rem',
       }}>
         <div style={{
           backgroundColor: '#1e293b',
@@ -56,7 +67,7 @@ export default function AppWrapper({ children }) {
           borderRadius: '24px',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
           maxWidth: '400px',
-          width: '90%',
+          width: '100%',
           textAlign: 'center'
         }}>
           <h1 style={{ color: '#fbbf24', fontSize: '2rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>PersoneliniTanı</h1>
@@ -65,6 +76,11 @@ export default function AppWrapper({ children }) {
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <input
               type="text"
+              autoComplete="username"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
+              inputMode="text"
               placeholder="İsminiz"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
@@ -75,7 +91,8 @@ export default function AppWrapper({ children }) {
                 backgroundColor: '#0f172a',
                 color: '#fff',
                 fontSize: '1rem',
-                outline: 'none'
+                outline: 'none',
+                width: '100%',
               }}
             />
             <button 
@@ -89,7 +106,8 @@ export default function AppWrapper({ children }) {
                 fontWeight: 'bold',
                 cursor: 'pointer',
                 border: 'none',
-                marginTop: '1rem'
+                marginTop: '1rem',
+                width: '100%',
               }}
             >
               Giriş Yap
@@ -104,7 +122,11 @@ export default function AppWrapper({ children }) {
   return (
     <div className="app-container">
       <Sidebar userName={userName} onLogout={() => {
-        localStorage.removeItem('personeltanim_user');
+        try {
+          localStorage.removeItem('personeltanim_user');
+        } catch (e) {
+          console.error("localStorage removeItem hatası:", e);
+        }
         window.location.reload();
       }} />
       <main className="main-content">
