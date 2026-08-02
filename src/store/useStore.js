@@ -17,8 +17,13 @@ export function getActiveUser() {
     if (u) return u.toLowerCase().trim();
   }
   
-  const user = localStorage.getItem('personeltanim_user');
-  return user ? user.toLowerCase().trim() : 'default';
+  try {
+    const user = localStorage.getItem('personeltanim_user');
+    return user ? user.toLowerCase().trim() : 'default';
+  } catch (e) {
+    console.error("localStorage erişim hatası:", e);
+    return 'default';
+  }
 }
 
 // Firestore belge yolu: hocatanim/{kullanıcıAdı}/globalState_v2
@@ -35,6 +40,10 @@ export function getDocRef() {
 
 const firestoreStorage = {
   getItem: async (name) => {
+    // Fallback to localStorage if Firestore is not available
+    if (!db) {
+      try { return localStorage.getItem(name); } catch { return null; }
+    }
     try {
       const docRef = getDocRef();
       const docSnap = await getDoc(docRef);
@@ -45,10 +54,16 @@ const firestoreStorage = {
       return null;
     } catch (error) {
       console.error("Firestore okuma hatası:", error);
-      throw error;
+      try { return localStorage.getItem(name); } catch { return null; }
     }
   },
   setItem: (name, value) => {
+    // Fallback to localStorage if Firestore is not available
+    if (!db) {
+      try { localStorage.setItem(name, value); } catch {}
+      return Promise.resolve();
+    }
+
     if (value === lastKnownValue) return;
 
     writeQueue = writeQueue.then(async () => {
@@ -59,12 +74,15 @@ const firestoreStorage = {
         lastKnownValue = value;
       } catch (error) {
         console.error("Firestore yazma hatası:", error);
+        try { localStorage.setItem(name, value); } catch {}
       }
     });
 
     return writeQueue;
   },
-  removeItem: async (name) => {},
+  removeItem: async (name) => {
+    try { localStorage.removeItem(name); } catch {}
+  },
 };
 
 export const useStore = create(
@@ -114,7 +132,7 @@ export const useStore = create(
 
 // Real-time senkronizasyon - kullanıcıya göre dinle
 export function subscribeToUserStore() {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined' || !db) return;
   if (currentUnsubscribe) {
     currentUnsubscribe();
     currentUnsubscribe = null;
@@ -122,8 +140,9 @@ export function subscribeToUserStore() {
 
   lastKnownValue = null;
 
-  const docRef = getDocRef();
-  currentUnsubscribe = onSnapshot(docRef, (docSnap) => {
+  try {
+    const docRef = getDocRef();
+    currentUnsubscribe = onSnapshot(docRef, (docSnap) => {
     if (docSnap.exists()) {
       const remoteValue = docSnap.data().value;
       if (remoteValue !== lastKnownValue) {
@@ -134,7 +153,10 @@ export function subscribeToUserStore() {
         } catch (e) {
           console.error("State parse error", e);
         }
+        }
       }
-    }
-  });
+    });
+  } catch (err) {
+    console.warn("Firestore subscription error:", err.message);
+  }
 }

@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -10,5 +10,13 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+let db = null;
+try {
+  if (!firebaseConfig.apiKey) throw new Error("Firebase env vars missing");
+  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  db = getFirestore(app);
+} catch (e) {
+  console.warn("Firebase başlatılamadı, localStorage fallback kullanılacak:", e.message);
+}
+
+export { db };
