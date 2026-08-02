@@ -1,13 +1,19 @@
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open('personeltanim-store').then((cache) => cache.addAll([
-      '/'
-    ])),
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => caches.delete(cacheName))
+      );
+    }).then(() => {
+      return self.registration.unregister();
+    }).then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((response) => response || fetch(e.request)),
-  );
+self.addEventListener('fetch', (event) => {
+  event.respondWith(fetch(event.request));
 });

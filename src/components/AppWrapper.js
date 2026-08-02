@@ -12,10 +12,14 @@ export default function AppWrapper({ children }) {
   useEffect(() => {
     setMounted(true);
     
-    // PWA Service Worker Kaydı
+    // Service Worker önbellek çakışmasını engellemek için temizle
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(err => {
-        console.log('Service Worker registration failed: ', err);
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (let registration of registrations) {
+          registration.unregister();
+        }
+      }).catch(err => {
+        console.log('Service Worker cleanup error: ', err);
       });
     }
 
